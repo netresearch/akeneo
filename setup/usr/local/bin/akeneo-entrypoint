@@ -1,0 +1,80 @@
+#!/bin/bash
+set -e
+
+if [ -z "$ENV" ]; then
+  ENV="production"
+fi
+
+cp /usr/local/etc/php/custom.conf.d/$ENV.ini /usr/local/etc/php/conf.d/akeneo_pim.ini
+
+if [ ! -z "$ON_READY" ]; then
+  eval "$ON_READY"
+fi
+
+echo 'Configure Akeneo System'
+php << 'PHP'
+<?php
+$confVars = array(
+  'database_driver',
+  'database_host',
+  'database_port',
+  'database_name',
+  'database_user',
+  'database_password',
+  'locale',
+  'secret',
+  'pim_catalog_product_storage_driver',
+  'mongodb_server',
+  'mongodb_database',
+);
+
+$path = 'app/config/parameters.yml';
+$file = file_get_contents(file_exists($path) ? $path : $path . '.dist');
+foreach ($confVars as $confVar) {
+  $envVar = strtoupper($confVar);
+  if (($envValue = getenv($envVar)) !== false) {
+    if($confVar == 'secret'){
+        $envValue = uniqid();
+    }
+    $pattern = '/^(\s*' . preg_quote($confVar) . '):.+$/m';
+    if (preg_match($pattern, $file)) {
+      $file = preg_replace($pattern, '$1: ' . $envValue, $file, 1);
+    } else {
+      $file .= "    $confVar: $envValue\n";
+    }
+  }
+}
+
+file_put_contents($path, $file);
+?>
+PHP
+
+if [ $MONGODB_SERVER ]; then
+    sed -i -E 's#//.+(new Doctrine\\Bundle\\MongoDBBundle\\DoctrineMongoDBBundle\(\))#\1#' app/AppKernel.php
+else
+    sed -i -E 's#^([^/]*)(new Doctrine\\Bundle\\MongoDBBundle\\DoctrineMongoDBBundle\(\))#\1// \2#' app/AppKernel.php
+fi
+
+echo "Waiting for database"
+retry "mysql -e 'SELECT 1' -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME"
+
+echo "Installing Akeneo"
+mkdir -p app/archive/
+mkdir -p app/file_storage/
+mkdir -p app/file_storage/catalog/
+mkdir -p /tmp/pim/
+mkdir -p /tmp/pim/file_storage/
+
+php app/console pim:installer:check-requirements --env=prod
+
+if ! mysql -e 'Select 1 FROM pim_catalog_channel;' -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME; then
+    php app/console pim:installer:db --env=prod
+fi
+
+php app/console pim:installer:assets --env=prod
+
+mv /root/.composer /var/www
+chown -R www-data /var/www
+chown -R www-data /tmp/pim
+
+$@

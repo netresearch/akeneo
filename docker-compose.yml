@@ -1,0 +1,31 @@
+version: '2'
+services:
+  akeneo:
+      #image: netresearch/akeneo
+      build: .
+      container_name: akeneo
+      links:
+        - mariadb:db
+        - mongo:mongodb
+      ports:
+        - 8080:80
+      environment:
+        - DATABASE_HOST=db
+        - DATABASE_NAME=akeneo
+        - DATABASE_USER=akeneo
+        - DATABASE_PASSWORD=akeneo
+        - MONGODB_SERVER=mongodb://mongodb:27017
+        - MONGODB_DATABASE=akeneo
+        - PIM_CATALOG_PRODUCT_STORAGE_DRIVER=doctrine/mongodb-odm
+        - EXPORT_PATH=/var/www/html/web/export
+  mariadb:
+      image: mariadb
+      container_name: mariadb
+      environment:
+        - MYSQL_RANDOM_ROOT_PASSWORD=yes
+        - MYSQL_DATABASE=akeneo
+        - MYSQL_USER=akeneo
+        - MYSQL_PASSWORD=akeneo
+  mongo:
+      image: mongo
+      container_name: mongo
