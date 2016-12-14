@@ -71,6 +71,11 @@ if ! mysql -e 'Select 1 FROM pim_catalog_channel;' -h $DATABASE_HOST -u $DATABAS
     php app/console pim:installer:db --env=prod
 fi
 
+if [ $MONGODB_SERVER ]; then
+    php app/console  doctrine:mongodb:schema:update
+fi
+
+php app/console doctrine:schema:update --force
 php app/console pim:installer:assets --env=prod
 
 mv /root/.composer /var/www
