@@ -27,11 +27,16 @@ All of the following environment variables are optional and overwrite the accord
 - LOCALE
 - SECRET
 - PIM_CATALOG_PRODUCT_STORAGE_DRIVER
+
+  If you want to use MongoDB you need this variable with this value: doctrine/mongodb-odm
+
 - MONGODB_SERVER
     
   If this variable is set, the DoctrineMongoDBBundle will automatically activated.
      
 - MONGODB_DATABASE
+
+  If you use MongoDb you must provide a database name, which will be used for the product collections
 
 
 

@@ -78,7 +78,7 @@ fi
 php app/console doctrine:schema:update --force
 php app/console pim:installer:assets --env=prod
 
-mv /root/.composer /var/www
+#mv /root/.composer /var/www
 chown -R www-data /var/www
 chown -R www-data /tmp/pim
 

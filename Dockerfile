@@ -28,7 +28,7 @@ RUN a2enmod rewrite \
     && a2ensite akeneo_pim \
     && a2dissite 000-default.conf
 
-ARG AKENEO_VERSION=1.6.6
+ARG AKENEO_VERSION=1.6.11
 
 RUN mkdir -p /src/packages/akeneo/pim-community-dev \
     && cd /src/packages/akeneo/pim-community-dev \
