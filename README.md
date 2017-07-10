@@ -38,7 +38,9 @@ All of the following environment variables are optional and overwrite the accord
 
   If you use MongoDb you must provide a database name, which will be used for the product collections
 
+- EXPORT_PATH
 
+  Set this to change the directory to where exports should go.
 
 ## GitHub
 

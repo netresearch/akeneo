@@ -78,6 +78,33 @@ fi
 php app/console doctrine:schema:update --force
 php app/console pim:installer:assets --env=prod
 
+if [ ! -z "$EXPORT_PATH" ]; then
+echo "Updating export paths"
+mysql -h $DATABASE_HOST -u $DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME << SQL
+UPDATE akeneo_batch_job_instance SET
+    rawConfiguration = REPLACE(
+        rawConfiguration,
+        @part := REGEXP_SUBSTR(rawConfiguration, CONCAT(@prefix := 's:8:"filePath";s:', '[0-9]+:"', @oldPath := '/tmp/')),
+        CONCAT(
+            @prefix,
+            CAST(
+                REGEXP_SUBSTR(
+                    REGEXP_SUBSTR(
+                        @part,
+                        ';s:[0-9]+'
+                    ),
+                    '[0-9]+'
+                )
+                as integer
+            ) + LENGTH(@path := '$EXPORT_PATH/') - LENGTH(@oldPath),
+            ':"',
+            @path
+        )
+    )
+WHERE type='export';
+SQL
+fi
+
 #mv /root/.composer /var/www
 chown -R www-data /var/www
 chown -R www-data /tmp/pim

@@ -36,8 +36,6 @@ RUN mkdir -p /src/packages/akeneo/pim-community-dev \
     && php -r '\
         $json = json_decode(file_get_contents("composer.json"), true); \
         $json["version"] = getenv("AKENEO_VERSION"); \
-        array_unshift($json["scripts"]["post-install-cmd"], "activate-bundles"); \
-        array_unshift($json["scripts"]["post-update-cmd"], "activate-bundles"); \
         file_put_contents("composer.json", json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");'
 
 WORKDIR /var/www/html
@@ -51,8 +49,6 @@ RUN composer create-project --no-install akeneo/pim-community-standard . $AKENEO
     && php -r '\
         $json = json_decode(file_get_contents("composer.json"), true); \
         $json["repositories"] = [["type" => "path", "url" => "/src/packages/*/*"]]; \
-        array_unshift($json["scripts"]["post-install-cmd"], "akeneo-activate-bundles"); \
-        array_unshift($json["scripts"]["post-update-cmd"], "akeneo-activate-bundles"); \
         file_put_contents("composer.json", json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");' \
     && composer require doctrine/mongodb-odm-bundle
 
