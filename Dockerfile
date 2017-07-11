@@ -40,9 +40,7 @@ RUN mkdir -p /src/packages/akeneo/pim-community-dev \
 
 WORKDIR /var/www/html
 
-RUN chmod +x /usr/local/bin/* \
-    && chmod 777 /usr/local/bin/* \
-    && chown -R www-data /usr/local/bin/akeneo-activate-bundles
+RUN chmod +x /usr/local/bin/akeneo-entrypoint
 
 RUN composer create-project --no-install akeneo/pim-community-standard . $AKENEO_VERSION \
     && composer config preferred-install 'dist' \
