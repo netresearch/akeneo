@@ -1,3 +1,7 @@
+**This image is deprecated and won't be maintained further - please switch to [netresearch/akeneo-app](https://hub.docker.com/r/netresearch/akeneo-app/) and [netresearch/akeneo-php-apache](https://hub.docker.com/r/netresearch/akeneo-php-apache/)**
+
+---
+
 # Akeneo
 
 This is an image running [Akeneo PIM](https://www.akeneo.com/) on an [php-apache](https://hub.docker.com/_/php/) base image, ready to run with MongoDB.
